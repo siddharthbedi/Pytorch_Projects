@@ -44,47 +44,27 @@ for m in range(epoch):
 # %matplotlib inline
 # %config InlineBackend.figure_format = 'retina'
 
-import helper
+#print(m)
+  
+  dataiter = iter(testloader)
+  images, labels = dataiter.next()
+  img = images.view(images.shape[0], -1)
+  ps = torch.exp(model(img))
 
-dataiter = iter(testloader)
-images, labels = dataiter.next()
-img = images.view(images.shape[0], -1)
 
-ps = torch.exp(model(img))
 
-import matplotlib.pyplot as plt
-import numpy as np
+  top_p , top_class = ps.topk(1,dim =1)
+  #top_class = top_class[:10, :]
+  equals = top_class == labels.view(*top_class.shape)
+  #print(equals.shape)
+  acc = torch.mean(equals.type(torch.FloatTensor))
+  acc = acc.item()*100
+  
+  plt.scatter(m,acc , s = 10)
+plt.show()
+print(acc)
 
-def view_classify(img, ps, version):
-    ''' Function for viewing an image and it's predicted classes.
-    '''
-    ps = ps.data.numpy().squeeze()
 
-    fig, (ax1, ax2) = plt.subplots(figsize=(6,9), ncols=2)
-    ax1.imshow(img.resize_(1, 28, 28).numpy().squeeze())
-    ax1.axis('off')
-    ax2.barh(np.arange(10), ps)
-    ax2.set_aspect(0.1)
-    ax2.set_yticks(np.arange(10))
-    if version == "MNIST":
-        ax2.set_yticklabels(np.arange(10))
-    elif version == "Fashion":
-        ax2.set_yticklabels(['T-shirt/top',
-                            'Trouser',
-                            'Pullover',
-                            'Dress',
-                            'Coat',
-                            'Sandal',
-                            'Shirt',
-                            'Sneaker',
-                            'Bag',
-                            'Ankle Boot'], size='small');
-    ax2.set_title('Class Probability')
-    ax2.set_xlim(0, 1.1)
-
-plt.tight_layout()
-
-view_classify(img,ps,version = 'Fashion')
 
 
 
